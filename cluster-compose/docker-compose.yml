@@ -94,6 +94,30 @@ services:
       - datanode4:/var/data/hdfs/datanode
     command: /start.sh
 
+  backupnode:
+    image: backupnode-image
+    container_name: backupnode
+    networks:
+      - hadoop-cluster
+    hostname: backupnode
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 3072m
+    expose:
+      - "50100"
+    ports:
+      - "50105:50105"
+    volumes:
+      - backupnode:/var/data/hdfs/backupnode
+    command:
+      bash -lc 'su alejandro_daniel -c
+      "sleep 30 &&
+      export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-arm64 &&
+      export HADOOP_HOME=/opt/bd/hadoop &&
+      /opt/bd/hadoop/bin/hdfs namenode -backup"'
+
     
 # Add three more DataNodes here
 networks:
@@ -106,4 +130,5 @@ volumes:
   datanode2:
   datanode3:
   datanode4:
+  backupnode:
 # Add three more DataNodes here
