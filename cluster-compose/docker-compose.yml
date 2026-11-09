@@ -1,0 +1,109 @@
+services:
+  namenode:
+    image: namenode-image
+    container_name: namenode
+    networks:
+      hadoop-cluster:
+        aliases:
+          - resourcemanager
+    hostname: namenode
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 3072m
+    expose:
+      - "8000-10000"
+    ports:
+      - "9870:9870"
+      - "8088:8088"
+    volumes:
+      - namenode:/var/data/hdfs/namenode
+      - configNamenode:/opt/bd/hadoop/etc/hadoop/
+    command: /start.sh
+
+  datanode1:
+    image: datanode-image
+    container_name: datanode1
+    networks:
+      - hadoop-cluster
+    hostname: datanode1
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 3072m
+    expose:
+      - "8000-10000"
+      - "50000-50200"
+    volumes:
+      - datanode1:/var/data/hdfs/datanode
+    command: /start.sh
+
+  datanode2:
+    image: datanode-image
+    container_name: datanode2
+    networks:
+      - hadoop-cluster
+    hostname: datanode2
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 3072m
+    expose:
+      - "8000-10000"
+      - "50000-50200"
+    volumes:
+      - datanode2:/var/data/hdfs/datanode
+    command: /start.sh
+
+  datanode3:
+    image: datanode-image
+    container_name: datanode3
+    networks:
+      - hadoop-cluster
+    hostname: datanode3
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 3072m
+    expose:
+      - "8000-10000"
+      - "50000-50200"
+    volumes:
+      - datanode3:/var/data/hdfs/datanode
+    command: /start.sh
+
+  datanode4:
+    image: datanode-image
+    container_name: datanode4
+    networks:
+      - hadoop-cluster
+    hostname: datanode4
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 3072m
+    expose:
+      - "8000-10000"
+      - "50000-50200"
+    volumes:
+      - datanode4:/var/data/hdfs/datanode
+    command: /start.sh
+
+    
+# Add three more DataNodes here
+networks:
+  hadoop-cluster:
+
+volumes:
+  namenode:
+  configNamenode:
+  datanode1:
+  datanode2:
+  datanode3:
+  datanode4:
+# Add three more DataNodes here
