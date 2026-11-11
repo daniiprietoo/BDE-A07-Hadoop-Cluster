@@ -76,24 +76,6 @@ services:
       - datanode3:/var/data/hdfs/datanode
     command: /start.sh
 
-  datanode4:
-    image: datanode-image
-    container_name: datanode4
-    networks:
-      - hadoop-cluster
-    hostname: datanode4
-    deploy:
-      resources:
-        limits:
-          cpus: '1'
-          memory: 3072m
-    expose:
-      - "8000-10000"
-      - "50000-50200"
-    volumes:
-      - datanode4:/var/data/hdfs/datanode
-    command: /start.sh
-
   backupnode:
     image: backupnode-image
     container_name: backupnode
@@ -118,6 +100,68 @@ services:
       export HADOOP_HOME=/opt/bd/hadoop &&
       /opt/bd/hadoop/bin/hdfs namenode -backup"'
 
+  datanode5:
+    image: datanode-image
+    container_name: datanode5
+    networks:
+      - hadoop-cluster
+    hostname: datanode5
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 3072m
+    expose:
+      - "8000-10000"
+      - "50000-50200"
+    volumes:
+      - datanode5:/var/data/hdfs/datanode
+    command: /start.sh
+
+  datanode6:
+    image: datanode-image
+    container_name: datanode6
+    networks:
+      - hadoop-cluster
+    hostname: datanode6
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 3072m
+    expose:
+      - "8000-10000"
+      - "50000-50200"
+    volumes:
+      - datanode6:/var/data/hdfs/datanode
+    command: /start.sh
+
+  timelineserver:
+    platform: linux/amd64
+    image: hadoop-base-amd64
+    container_name: timelineserver
+    networks:
+      - hadoop-cluster
+    hostname: timelineserver
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 3072m
+    expose:
+      - "10200"
+    ports:
+      - "8188:8188"
+    volumes:
+      - configNamenode:/opt/bd/hadoop/etc/hadoop/
+    command: >-
+      bash -lc 'su alejandro_daniel -c
+      "export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 &&
+      export HADOOP_HOME=/opt/bd/hadoop &&
+      /opt/bd/hadoop/bin/yarn --daemon start timelineserver" &&
+      while true; do sleep 10000; done'
+
+
     
 # Add three more DataNodes here
 networks:
@@ -129,6 +173,8 @@ volumes:
   datanode1:
   datanode2:
   datanode3:
-  datanode4:
   backupnode:
+  timelineserver:
+  datanode5:
+  datanode6:
 # Add three more DataNodes here

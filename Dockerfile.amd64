@@ -1,0 +1,66 @@
+# Use the latest Ubuntu LTS as the base image (Mac M compatible)
+FROM ubuntu:20.04
+
+# COMPLETE with your studentName1StudentName2
+ENV USERNAME=alejandro_daniel
+
+# Directory where we will install Hadoop
+ENV BASE_DIR=/opt/bd
+
+# Hadoop version to install
+ENV HADOOP_VERSION=3.5.0
+ENV LOG_TAG="[BASE Hadoop_${HADOOP_VERSION}]:"
+ENV REPOSITORY=https://dlcdn.apache.org/hadoop/common
+
+# Change to root user
+USER root
+
+# Install necessary dependencies
+RUN echo "$LOG_TAG Updating and installing basic packages" && \
+    apt-get update && \
+    apt-get install -y --no-install-recommends openjdk-17-jdk openjdk-17-jre python3 curl locales && \
+    apt-get install -y nano && \
+    apt-get install -y maven && \
+    apt-get install -y dnsutils && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists
+
+    # Generate locales in English
+RUN echo "$LOG_TAG Generating locales" && \
+    locale-gen en_GB.UTF-8 && update-locale LANG=en_GB.UTF-8
+
+# Make the directory for the Hadoop installation
+RUN mkdir -p ${BASE_DIR}
+
+# Change to that directory
+WORKDIR ${BASE_DIR}
+
+# Download the latest version of Hadoop to /opt/bd
+RUN echo "$LOG_TAG Downloading Hadoop" && \
+    curl -fLO "${REPOSITORY}/hadoop-${HADOOP_VERSION}/hadoop-${HADOOP_VERSION}.tar.gz" && \
+    tar xzvf hadoop-${HADOOP_VERSION}.tar.gz && \
+    ln -s hadoop-${HADOOP_VERSION} hadoop && \
+    rm hadoop-${HADOOP_VERSION}.tar.gz
+
+# Create the "hadoop" user group and
+# Also create your user (USERNAME) that will be part of that group
+RUN groupadd -r hadoop && \
+    useradd -r -g hadoop -d ${BASE_DIR} -m -s /bin/bash ${USERNAME}
+
+# Create the .bashrc and .bash_profile for USERNAME
+# with the necessary environment variables
+RUN echo 'source $HOME/.bashrc' >> .bash_profile
+RUN echo 'export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64' >> /opt/bd/.bashrc
+RUN echo 'export HADOOP_HOME=/opt/bd/hadoop' >> /opt/bd/.bashrc
+RUN echo 'export PATH=$PATH:$HADOOP_HOME/bin:$JAVA_HOME/bin' >> /opt/bd/.bashrc
+RUN chmod +x /opt/bd/.bashrc
+RUN chmod +x /opt/bd/.bash_profile
+
+# Create the directory for the log files
+RUN mkdir /opt/bd/hadoop/logs
+
+# Set permissions
+RUN chown -R ${USERNAME}:hadoop ${BASE_DIR}
+
+# Create a new user with lower privileges, only to run MapReduce jobs
+RUN useradd -m -s /bin/bash luser
